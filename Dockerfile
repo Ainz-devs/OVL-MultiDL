@@ -1,11 +1,16 @@
-FROM node:lts-buster
+FROM node:lts-alpine
 
-RUN apt update && apt install -y curl python3 python3-pip ffmpeg && \
-    pip3 install -U yt-dlp
+RUN apk add --no-cache \
+    curl \
+    python3 \
+    py3-pip \
+    ffmpeg \
+    git && \
+    pip3 install --upgrade yt-dlp
 
-RUN git clone https://github.com/Ainz-devs/ytdl--ovl.git /root/ytdl
+RUN git clone https://github.com/Ainz-devs/ytdl--ovl.git /app
 
-WORKDIR /root/ytdl
+WORKDIR /app
 
 COPY package.json .
 RUN npm install
