@@ -18,10 +18,12 @@ async function ytdl(videoUrl, type = 'mp3') {
       const postResp = await axios.post('https://s69.notube.lol/recover_weight.php', postData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-          'User-Agent': 'GoogleBot',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
           'Referer': 'https://notube.lol/fr/'
         }
       });
+
+      console.log('🔄 Réponse recover_weight:', postResp.data);
 
       const token = postResp.data?.token;
       const titre = decodeURIComponent(postResp.data?.titre_mp4 || 'Fichier inconnu');
@@ -32,11 +34,14 @@ async function ytdl(videoUrl, type = 'mp3') {
         headers: {
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
           'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
-          'User-Agent': 'GoogleBot',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
           'Referer': `https://notube.lol/fr/download?token=${token}`
         },
         maxRedirects: 5
       });
+
+      console.log('📄 HTML de /faq récupéré');
+      console.log(getPage.data);
 
       const rawCookies = getPage.headers['set-cookie'] || [];
       const parsedCookies = rawCookies
@@ -53,7 +58,7 @@ async function ytdl(videoUrl, type = 'mp3') {
       const dlPage = await axios.get(`https://notube.lol/fr/download?token=${token}`, {
         headers: {
           'Content-Type': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-          'User-Agent': 'GoogleBot',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
           'Referer': 'https://notube.lol/fr/youtube-app-208',
           'Cookie': sessionCookies
         }
@@ -62,7 +67,11 @@ async function ytdl(videoUrl, type = 'mp3') {
       const $ = cheerio.load(dlPage.data);
       const downloadLink = $('#downloadButton').attr('href');
 
-      if (!downloadLink) throw new Error('❌ Lien de téléchargement introuvable.');
+      if (!downloadLink) {
+        console.log('❌ Aucun bouton #downloadButton trouvé. HTML reçu :');
+        console.log(dlPage.data);
+        throw new Error('❌ Lien de téléchargement introuvable.');
+      }
 
       return { downloadLink, titre };
 
