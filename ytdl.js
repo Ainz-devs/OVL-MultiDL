@@ -1,63 +1,57 @@
 const express = require('express');
-const { exec } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+const axios = require('axios');
+const cheerio = require('cheerio');
 const app = express.Router();
 
-const DOWNLOAD_DIR = path.resolve(__dirname, 'downloads');
-if (!fs.existsSync(DOWNLOAD_DIR)) fs.mkdirSync(DOWNLOAD_DIR);
+async function ytdl(videoUrl, type = 'mp3') {
+  const maxAttempts = 5;
 
-function generateUniqueId() {
-  return `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-}
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      console.log(`Tentative ${attempt} pour récupérer le lien...`);
 
-async function ytdlp(videoUrl, format = 'mp3') {
-  const uniqueId = generateUniqueId();
-  const ext = format === 'mp3' ? 'mp3' : 'mp4';
-  const outputPath = path.join(DOWNLOAD_DIR, `yt-${uniqueId}-%(title).50s.%(ext)s`);
+      const postData = new URLSearchParams({
+        url: videoUrl,
+        format: type,
+        lang: 'fr'
+      }).toString();
 
-  const metadata = await new Promise((resolve, reject) => {
-    const metadataCmd = `yt-dlp --cookies-from-browser chrome --dump-json "${videoUrl}"`;
-    exec(metadataCmd, { maxBuffer: 1024 * 1024 * 5 }, (err, stdout) => {
-      if (err) return reject(err);
-      try {
-        const info = JSON.parse(stdout);
-        resolve(info);
-      } catch {
-        reject(new Error("Erreur de parsing JSON yt-dlp"));
-      }
-    });
-  });
+      const postResp = await axios.post('https://s69.notube.lol/recover_weight.php', postData, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+          'User-Agent': 'GoogleBot',
+          'Referer': 'https://notube.lol/fr/'
+        }
+      });
 
-  const downloadCmd = `yt-dlp --cookies-from-browser chrome -f bestaudio --extract-audio --audio-format ${format} -o "${outputPath}" "${videoUrl}"`;
+      const token = postResp.data?.token;
+      const titre = decodeURIComponent(postResp.data?.titre_mp4);
+      console.log(`[Tentative ${attempt}] 🔑 Token :`, token);
+      console.log(`[Tentative ${attempt}] 📄 Nom du fichier :`, name);
 
-  await new Promise((resolve, reject) => {
-    exec(downloadCmd, { maxBuffer: 1024 * 1024 * 10 }, (err) => {
-      if (err) return reject(err);
-      resolve();
-    });
-  });
+      if (!token) throw new Error('❌ Token non trouvé dans la réponse.');
 
-  const files = fs.readdirSync(DOWNLOAD_DIR).filter(f =>
-    f.startsWith(`yt-${uniqueId}`) && f.endsWith(`.${ext}`)
-  );
+      const dlPage = await axios.get(`https://notube.lol/fr/download?token=${token}`, {
+        headers: {
+          'Content-Type': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+          'User-Agent': 'GoogleBot',
+          'Referer': 'https://notube.lol/fr/youtube-app-206',
+        }
+      });
 
-  if (files.length === 0) throw new Error("Aucun fichier téléchargé.");
-  const lastFile = files[0];
+      const $ = cheerio.load(dlPage.data);
+      const downloadLink = $('#downloadButton').attr('href');
+      console.log(`[Tentative ${attempt}] 🔗 Lien :`, downloadLink);
 
-  setTimeout(() => {
-    const filePath = path.join(DOWNLOAD_DIR, lastFile);
-    if (fs.existsSync(filePath)) fs.unlink(filePath, () => {});
-  }, 5 * 60 * 1000);
+      if (!downloadLink) throw new Error('❌ Lien de téléchargement introuvable.');
 
-  return {
-    title: metadata.title,
-    channel: metadata.uploader,
-    duration: metadata.duration,
-    thumbnail: metadata.thumbnail,
-    fichier: `/downloads/${encodeURIComponent(lastFile)}`,
-    format: ext
-  };
+      return { downloadLink, titre };
+
+    } catch (e) {
+      console.warn(`⚠️ Erreur tentative ${attempt} :`, e.message);
+      if (attempt === maxAttempts) return null;
+    }
+  }
 }
 
 app.get('/ovl-yt-dl', async (req, res) => {
@@ -67,21 +61,19 @@ app.get('/ovl-yt-dl', async (req, res) => {
     return res.status(400).json({ status: false, error: '❌ Lien YouTube non valide.' });
   }
 
-  try {
-    const result = await ytdlp(url, format);
-    res.json({
-      status: true,
-      creator: 'Ainz',
-      title: result.title,
-      channel: result.channel,
-      duration: result.duration,
-      thumbnail: result.thumbnail,
-      file: result.fichier,
-      format: result.format
-    });
-  } catch (err) {
-    res.status(500).json({ status: false, error: err.message });
+  const result = await ytdl(url, format);
+
+  if (!result) {
+    return res.status(500).json({ status: false, error: '❌ Impossible de récupérer le lien de téléchargement.' });
   }
+
+  res.json({
+    status: true,
+    creator: 'Ainz',
+    url: result.downloadLink,
+    name: result.titre,
+    format
+  });
 });
 
 module.exports = app;
