@@ -9,12 +9,11 @@ async function ytdl(videoUrl, type = 'mp3') {
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const getPage = await axios.get('https://notube.lol/fr/youtube-app-208', {
+      const getPage = await axios.get('https://notube.lol/fr/faq', {
         headers: {
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-          'Accept-Language': 'fr-FR,fr;q=0.9',
-          'User-Agent': 'GoogleBot',
-          'Referer': 'https://notube.lol/fr/youtube-app-208'
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+          'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+          'User-Agent': 'GoogleBot'
         },
         maxRedirects: 5
       });
