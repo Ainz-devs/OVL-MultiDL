@@ -30,6 +30,7 @@ async function ytdl(videoUrl, type = 'mp3') {
       })
         .map(([key, value]) => cookie.serialize(key, value))
         .join('; ');
+      console.log(sessionCookies);
       
       const postData = new URLSearchParams({
         url: videoUrl,
