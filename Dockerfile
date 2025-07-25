@@ -6,7 +6,7 @@ RUN apk add --no-cache \
     py3-pip \
     ffmpeg \
     git && \
-    pip3 install --upgrade yt-dlp
+    pip3 install --break-system-packages --upgrade yt-dlp
 
 RUN git clone https://github.com/Ainz-devs/ytdl--ovl.git /app
 
