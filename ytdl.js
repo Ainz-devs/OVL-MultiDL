@@ -27,7 +27,7 @@ async function ytdl(videoUrl, type = 'mp3') {
       const token = postResp.data?.token;
       const titre = decodeURIComponent(postResp.data?.titre_mp4);
       console.log(`[Tentative ${attempt}] 🔑 Token :`, token);
-      console.log(`[Tentative ${attempt}] 📄 Nom du fichier :`, name);
+      console.log(`[Tentative ${attempt}] 📄 Nom du fichier :`, titre);
 
       if (!token) throw new Error('❌ Token non trouvé dans la réponse.');
 
@@ -38,7 +38,7 @@ async function ytdl(videoUrl, type = 'mp3') {
           'Referer': 'https://notube.lol/fr/youtube-app-206',
         }
       });
-
+console.log(dlPage.data);
       const $ = cheerio.load(dlPage.data);
       const downloadLink = $('#downloadButton').attr('href');
       console.log(`[Tentative ${attempt}] 🔗 Lien :`, downloadLink);
