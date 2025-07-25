@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio');
+const cookie = require("cookie");
 const app = express.Router();
 
 async function ytdl(videoUrl, type = 'mp3') {
@@ -8,8 +9,28 @@ async function ytdl(videoUrl, type = 'mp3') {
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      console.log(`Tentative ${attempt} pour récupérer le lien...`);
+      const getPage = await axios.get('https://notube.lol/fr/youtube-app-206', {
+        headers: {
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+          'Accept-Language': 'fr-FR,fr;q=0.9',
+          'User-Agent': 'GoogleBot',
+          'Referer': 'https://notube.lol/fr/youtube-app-206'
+        },
+        maxRedirects: 5
+      });
 
+      const rawCookies = getPage.headers['set-cookie'] || [];
+      const parsedCookies = rawCookies
+        .map(cookieStr => cookie.parse(cookieStr))
+        .reduce((acc, curr) => ({ ...acc, ...curr }), {});
+
+      const sessionCookies = Object.entries({
+        __cfduid: parsedCookies.__cfduid || '',
+        PHPSESSID: parsedCookies.PHPSESSID || ''
+      })
+        .map(([key, value]) => cookie.serialize(key, value))
+        .join('; ');
+      
       const postData = new URLSearchParams({
         url: videoUrl,
         format: type,
@@ -26,9 +47,7 @@ async function ytdl(videoUrl, type = 'mp3') {
 
       const token = postResp.data?.token;
       const titre = decodeURIComponent(postResp.data?.titre_mp4);
-      console.log(`[Tentative ${attempt}] 🔑 Token :`, token);
-      console.log(`[Tentative ${attempt}] 📄 Nom du fichier :`, titre);
-
+       
       if (!token) throw new Error('❌ Token non trouvé dans la réponse.');
 
       const dlPage = await axios.get(`https://notube.lol/fr/download?token=${token}`, {
@@ -36,13 +55,12 @@ async function ytdl(videoUrl, type = 'mp3') {
           'Content-Type': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
           'User-Agent': 'GoogleBot',
           'Referer': 'https://notube.lol/fr/youtube-app-206',
+          'Cookie': sessionCookies
         }
       });
-console.log(dlPage.data);
       const $ = cheerio.load(dlPage.data);
       const downloadLink = $('#downloadButton').attr('href');
-      console.log(`[Tentative ${attempt}] 🔗 Lien :`, downloadLink);
-
+      
       if (!downloadLink) throw new Error('❌ Lien de téléchargement introuvable.');
 
       return { downloadLink, titre };
