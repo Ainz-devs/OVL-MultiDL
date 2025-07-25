@@ -17,7 +17,8 @@ async function ytdlp(videoUrl, format = 'mp3') {
   const outputPath = path.join(DOWNLOAD_DIR, `yt-${uniqueId}-%(title).50s.%(ext)s`);
 
   const metadata = await new Promise((resolve, reject) => {
-    exec(`yt-dlp --dump-json "${videoUrl}"`, { maxBuffer: 1024 * 1024 * 5 }, (err, stdout) => {
+    const metadataCmd = `yt-dlp --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" --add-header "Referer: https://www.youtube.com" --add-header "Accept-Language: en-US,en;q=0.9" --dump-json "${videoUrl}"`;
+    exec(metadataCmd, { maxBuffer: 1024 * 1024 * 5 }, (err, stdout) => {
       if (err) return reject(err);
       try {
         const info = JSON.parse(stdout);
@@ -28,7 +29,7 @@ async function ytdlp(videoUrl, format = 'mp3') {
     });
   });
 
-  const downloadCmd = `yt-dlp -f bestaudio --extract-audio --audio-format ${format} -o "${outputPath}" "${videoUrl}"`;
+  const downloadCmd = `yt-dlp --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" --add-header "Referer: https://www.youtube.com" --add-header "Accept-Language: en-US,en;q=0.9" -f bestaudio --extract-audio --audio-format ${format} -o "${outputPath}" "${videoUrl}"`;
 
   await new Promise((resolve, reject) => {
     exec(downloadCmd, { maxBuffer: 1024 * 1024 * 10 }, (err) => {
@@ -68,7 +69,6 @@ app.get('/ovl-yt-dl', async (req, res) => {
 
   try {
     const result = await ytdlp(url, format);
-
     res.json({
       status: true,
       creator: 'Ainz',
