@@ -9,27 +9,7 @@ async function ytdl(videoUrl, type = 'mp3') {
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const getPage = await axios.get('https://notube.lol/fr/faq', {
-        headers: {
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-          'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
-          'User-Agent': 'GoogleBot'
-        },
-        maxRedirects: 5
-      });
-
-      const rawCookies = getPage.headers['set-cookie'] || [];
-      const parsedCookies = rawCookies
-        .map(cookieStr => cookie.parse(cookieStr))
-        .reduce((acc, curr) => ({ ...acc, ...curr }), {});
-
-      const sessionCookies = Object.entries({
-        __cfduid: parsedCookies.__cfduid || '',
-        PHPSESSID: parsedCookies.PHPSESSID || ''
-      })
-        .map(([key, value]) => cookie.serialize(key, value))
-        .join('; ');
-      console.log(sessionCookies);
+      
       
       const postData = new URLSearchParams({
         url: videoUrl,
@@ -50,6 +30,29 @@ async function ytdl(videoUrl, type = 'mp3') {
        
       if (!token) throw new Error('❌ Token non trouvé dans la réponse.');
 
+      const getPage = await axios.get('https://notube.lol/fr/faq', {
+        headers: {
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+          'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+          'User-Agent': 'GoogleBot',
+          'Referer': `https://notube.lol/fr/download?token=${token}`
+        },
+        maxRedirects: 5
+      });
+
+      const rawCookies = getPage.headers['set-cookie'] || [];
+      const parsedCookies = rawCookies
+        .map(cookieStr => cookie.parse(cookieStr))
+        .reduce((acc, curr) => ({ ...acc, ...curr }), {});
+
+      const sessionCookies = Object.entries({
+        __cfduid: parsedCookies.__cfduid || '',
+        PHPSESSID: parsedCookies.PHPSESSID || ''
+      })
+        .map(([key, value]) => cookie.serialize(key, value))
+        .join('; ');
+      console.log(sessionCookies);
+      
       const dlPage = await axios.get(`https://notube.lol/fr/download?token=${token}`, {
         headers: {
           'Content-Type': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
