@@ -4,6 +4,10 @@ const cheerio = require('cheerio');
 const cookie = require("cookie");
 const app = express.Router();
 
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function ytdl(videoUrl, type = 'mp3') {
   const maxAttempts = 5;
 
@@ -27,7 +31,9 @@ async function ytdl(videoUrl, type = 'mp3') {
       const titre = decodeURIComponent(postResp.data?.titre_mp4 || 'Fichier inconnu');
 
       if (!token) throw new Error('❌ Token non trouvé dans la réponse.');
-      
+
+      await wait(5000); // délai de 5 secondes
+
       const dlPage = await axios.get(`https://notube.lol/fr/download?token=${token}`, {
         headers: {
           'Content-Type': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -64,9 +70,8 @@ app.get('/ovl-yt-dl', async (req, res) => {
   res.json({
     status: true,
     creator: 'Ainz',
-    url: result.downloadLink,
     name: result.titre,
-    format
+    ovl_dl_link: result.downloadLink,
   });
 });
 
