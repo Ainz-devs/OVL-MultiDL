@@ -27,21 +27,10 @@ GET /ovl-yt-dl?url=https://youtu.be/rLxyYIuwGa0&format=mp3
 {
   "status": true,
   "creator": "Ainz",
-  "title": "Nom de la vidéo",
-  "channel": "Nom de la chaîne",
-  "duration": 245,
-  "thumbnail": "https://i.ytimg.com/...",
-  "file": "/downloads/yt-17218...Ovlsong.mp3",
-  "format": "mp3"
+  "name": "Overlord+-+Opening+3+|+4K+|+60FPS+|+Creditless+|",
+  "ovl_dl_link": "https://s69.notube.lol/download.php?token=b6d60eed9af8731c8993ec389f9152d2&key=ky653p4ai940sztr"
 }
 ```
-
----
-
-### 🧹 Nettoyage automatique
-
-Chaque fichier est **supprimé automatiquement 5 minutes après le téléchargement**.
-
 ---
 
 ### 👑 Auteur
