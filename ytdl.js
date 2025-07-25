@@ -9,8 +9,6 @@ async function ytdl(videoUrl, type = 'mp3') {
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      
-      
       const postData = new URLSearchParams({
         url: videoUrl,
         format: type,
@@ -26,8 +24,8 @@ async function ytdl(videoUrl, type = 'mp3') {
       });
 
       const token = postResp.data?.token;
-      const titre = decodeURIComponent(postResp.data?.titre_mp4);
-       
+      const titre = decodeURIComponent(postResp.data?.titre_mp4 || 'Fichier inconnu');
+
       if (!token) throw new Error('❌ Token non trouvé dans la réponse.');
 
       const getPage = await axios.get('https://notube.lol/fr/faq', {
@@ -51,8 +49,7 @@ async function ytdl(videoUrl, type = 'mp3') {
       })
         .map(([key, value]) => cookie.serialize(key, value))
         .join('; ');
-      console.log(sessionCookies);
-      
+
       const dlPage = await axios.get(`https://notube.lol/fr/download?token=${token}`, {
         headers: {
           'Content-Type': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -61,9 +58,10 @@ async function ytdl(videoUrl, type = 'mp3') {
           'Cookie': sessionCookies
         }
       });
+
       const $ = cheerio.load(dlPage.data);
       const downloadLink = $('#downloadButton').attr('href');
-      
+
       if (!downloadLink) throw new Error('❌ Lien de téléchargement introuvable.');
 
       return { downloadLink, titre };
