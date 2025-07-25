@@ -1,12 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio');
-const cookie = require("cookie");
 const app = express.Router();
-
-function wait(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 async function ytdl(videoUrl, type = 'mp3') {
   const maxAttempts = 5;
@@ -28,23 +23,47 @@ async function ytdl(videoUrl, type = 'mp3') {
       });
 
       const token = postResp.data?.token;
+      const name_mp4 = postResp.data?.name_mp4 || 'video.mp4';
       const titre = decodeURIComponent(postResp.data?.titre_mp4 || 'Fichier inconnu');
 
-      if (!token) throw new Error('❌ Token non trouvé dans la réponse.');
+      if (!token) throw new Error();
 
-      await wait(5000); // délai de 5 secondes
+      const formValidation = new URLSearchParams({
+        url: videoUrl,
+        format: type,
+        name_mp4,
+        lang: 'fr',
+        token,
+        subscribed: 'false',
+        playlist: 'false',
+        adblock: 'false'
+      }).toString();
+
+      const validationResp = await axios.post(
+        'https://s66.notube.lol/recover_file.php?lang=fr',
+        formValidation,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+            'Referer': 'https://notube.lol/fr/',
+          }
+        }
+      );
+
+      if (validationResp.data?.retour !== 'OK') throw new Error();
 
       const dlPage = await axios.get(`https://notube.lol/fr/download?token=${token}`, {
         headers: {
-          'Content-Type': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+          'Content-Type': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7'
         }
       });
 
       const $ = cheerio.load(dlPage.data);
       const downloadLink = $('#downloadButton').attr('href');
 
-      if (!downloadLink) throw new Error('❌ Lien de téléchargement introuvable.');
+      if (!downloadLink) throw new Error();
 
       return { downloadLink, titre };
 
