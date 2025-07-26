@@ -13,7 +13,7 @@
     }
     body {
       background: linear-gradient(to bottom right, #0a0a0a, #141414);
-      color: #fff;
+      color: #e6e6e6;
       min-height: 100vh;
       overflow-x: hidden;
       display: flex;
@@ -31,7 +31,7 @@
     .background-anim span {
       position: absolute;
       width: 60px; height: 60px;
-      background: rgba(30, 144, 255, 0.2);
+      background: rgba(30, 144, 255, 0.15);
       border-radius: 50%;
       animation: float 15s infinite ease-in-out;
     }
@@ -47,10 +47,10 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(10px);
       padding: 15px 20px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
     }
     .logo-title {
       font-size: 1.4rem;
@@ -60,26 +60,16 @@
     }
     .home-icon {
       cursor: pointer;
-      color: #1e90ff;
-      font-size: 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-weight: 600;
-      user-select: none;
-      border: 1.5px solid #1e90ff;
-      padding: 6px 12px;
-      border-radius: 10px;
-      transition: background-color 0.3s ease;
     }
-    .home-icon:hover {
-      background-color: #1c86ee;
-      color: #fff;
+    .home-icon svg {
+      width: 28px;
+      height: 28px;
+      fill: #1e90ff;
     }
     main.container {
       max-width: 600px;
       width: 90%;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(20, 20, 20, 0.7);
       backdrop-filter: blur(15px);
       padding: 30px 25px 40px;
       border-radius: 25px;
@@ -102,7 +92,7 @@
       width: 100%;
       max-height: 360px;
       border-radius: 16px;
-      background: #000;
+      background: #111;
       box-shadow: 0 0 20px rgba(30, 144, 255, 0.7);
     }
     .media-title {
@@ -110,7 +100,7 @@
       font-size: 1.5rem;
       margin-bottom: 30px;
       word-break: break-word;
-      color: #1e90ff;
+      color: #d3d3d3;
       user-select: text;
     }
     .btn-download, .btn-return {
@@ -162,9 +152,11 @@
 
   <header>
     <div class="logo-title">OVL-MultiDL</div>
-    <div class="home-icon" id="homeBtn" title="Retour à la plateforme">
-  <i class="fas fa-arrow-left"></i>
-</div>
+    <div class="home-icon" onclick="window.location.href='/'">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 3l10 9h-3v9h-5v-6H10v6H5v-9H2z" />
+      </svg>
+    </div>
   </header>
 
   <main class="container" id="resultContainer">
@@ -220,7 +212,6 @@
     const id = getIdFromPath();
     if (id) fetchResult(id);
     else document.getElementById('mediaTitle').textContent = "Identifiant manquant dans l'URL.";
-    document.getElementById('homeBtn').onclick = () => { window.location.href = '/'; };
   </script>
 </body>
 </html>
