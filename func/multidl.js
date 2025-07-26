@@ -53,6 +53,7 @@ async function ovldl(videoUrl, type, userAgent) {
         { headers }
       );
 
+      console.log(validationResp.data);
       if (validationResp.data?.retour !== 'OK') throw new Error('Validation échouée');
 
       const dlPage = await axios.get(`https://notube.lol/fr/download?token=${token}`, {
