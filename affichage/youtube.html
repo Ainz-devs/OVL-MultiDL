@@ -298,7 +298,7 @@
       launchBtn.innerHTML = '<div class="loader"></div> Chargement...';
 
       try {
-        const res = await fetch(`/ovldl?url=${encodeURIComponent(url)}&format=${encodeURIComponent(format)}`);
+        const res = await fetch(`/ovldl?url=${encodeURIComponent(url)}&format=${encodeURIComponent(format)}&source=youtube`);
         const data = await res.json();
 
         if (!data.status || !data.id) throw new Error(data.error || 'Erreur serveur');
