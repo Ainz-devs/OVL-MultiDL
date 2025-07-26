@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OVL-MultiDL - Téléchargement</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      background: linear-gradient(to bottom right, #0a0a0a, #141414);
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 70px;
+    }
+    .background-anim {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .background-anim span {
+      position: absolute;
+      width: 60px; height: 60px;
+      background: rgba(30, 144, 255, 0.2);
+      border-radius: 50%;
+      animation: float 15s infinite ease-in-out;
+    }
+    @keyframes float {
+      0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: translateY(-100vh) scale(1.2); opacity: 0; }
+    }
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      padding: 15px 20px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    }
+    .logo-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #1e90ff;
+      user-select: none;
+    }
+    .home-icon {
+      cursor: pointer;
+      color: #1e90ff;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      user-select: none;
+      border: 1.5px solid #1e90ff;
+      padding: 6px 12px;
+      border-radius: 10px;
+      transition: background-color 0.3s ease;
+    }
+    .home-icon:hover {
+      background-color: #1c86ee;
+      color: #fff;
+    }
+    main.container {
+      max-width: 600px;
+      width: 90%;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(15px);
+      padding: 30px 25px 40px;
+      border-radius: 25px;
+      box-shadow: 0 0 30px rgba(30, 144, 255, 0.3);
+      text-align: center;
+      z-index: 5;
+      margin-bottom: 50px;
+    }
+    main h2 {
+      font-size: 2rem;
+      color: #1e90ff;
+      font-weight: 800;
+      margin-bottom: 25px;
+    }
+    .media-wrapper {
+      margin-bottom: 25px;
+    }
+    .media-wrapper audio,
+    .media-wrapper video {
+      width: 100%;
+      max-height: 360px;
+      border-radius: 16px;
+      background: #000;
+      box-shadow: 0 0 20px rgba(30, 144, 255, 0.7);
+    }
+    .media-title {
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 30px;
+      word-break: break-word;
+      color: #1e90ff;
+      user-select: text;
+    }
+    .btn-download, .btn-return {
+      display: inline-block;
+      padding: 14px 40px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border-radius: 14px;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      user-select: none;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      margin: 10px 15px 0 15px;
+      box-shadow: 0 0 15px rgba(30,144,255,0.6);
+      color: #fff;
+      background-color: #1e90ff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-download:hover, .btn-return:hover {
+      background-color: #1c86ee;
+      transform: scale(1.05);
+    }
+    .btn-return {
+      background-color: transparent;
+      color: #1e90ff;
+      border: 2px solid #1e90ff;
+      box-shadow: none;
+      margin-top: 30px;
+    }
+    .btn-return:hover {
+      background-color: #1e90ff;
+      color: #fff;
+      box-shadow: 0 0 20px rgba(30,144,255,0.8);
+    }
+  </style>
+</head>
+<body>
+  <div class="background-anim">
+    <span style="left:10%; animation-delay: 0s;"></span>
+    <span style="left:30%; animation-delay: 3s;"></span>
+    <span style="left:50%; animation-delay: 6s;"></span>
+    <span style="left:70%; animation-delay: 1s;"></span>
+    <span style="left:90%; animation-delay: 5s;"></span>
+  </div>
+
+  <header>
+    <div class="logo-title">OVL-MultiDL</div>
+    <div class="home-icon" id="homeBtn" title="Retour à la plateforme">
+  <i class="fas fa-arrow-left"></i>
+</div>
+  </header>
+
+  <main class="container" id="resultContainer">
+    <h2></h2>
+    <div class="media-wrapper" id="mediaWrapper"></div>
+    <div class="media-title" id="mediaTitle">Chargement...</div>
+    <a href="#" download class="btn-download" id="downloadBtn" style="display:none;">
+      <i class="fas fa-download"></i> Télécharger maintenant
+    </a>
+    <button class="btn-return" id="btnReturn" style="display:none;">
+      <i class="fas fa-undo-alt"></i> Retour
+    </button>
+  </main>
+
+  <script>
+    function getIdFromPath() {
+      const parts = window.location.pathname.split('/');
+      return parts.length ? parts[parts.length - 1] : null;
+    }
+    function getSourceFromQuery() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('source') || 'Accueil';
+    }
+    async function fetchResult(id) {
+      try {
+        const res = await fetch(`/ovldl?id=${encodeURIComponent(id)}`);
+        const data = await res.json();
+        if (!data.status) throw new Error(data.error || 'Erreur serveur');
+        const { name, ovl_dl_link } = data;
+        const ext = ovl_dl_link.split('.').pop().toLowerCase();
+        const mediaWrapper = document.getElementById('mediaWrapper');
+        let mediaHTML = '';
+        if (['mp3', 'm4a', 'wav'].includes(ext)) mediaHTML = `<audio controls src="${ovl_dl_link}"></audio>`;
+        else if (['mp4', '3gp', 'flv'].includes(ext)) mediaHTML = `<video controls src="${ovl_dl_link}"></video>`;
+        else mediaHTML = `<a href="${ovl_dl_link}" target="_blank" rel="noopener noreferrer" style="color:#1e90ff; font-weight:600;">Lien téléchargement direct</a>`;
+        mediaWrapper.innerHTML = mediaHTML;
+        document.getElementById('mediaTitle').textContent = name;
+        const downloadBtn = document.getElementById('downloadBtn');
+        downloadBtn.href = ovl_dl_link;
+        downloadBtn.download = name;
+        downloadBtn.style.display = 'inline-flex';
+        const btnReturn = document.getElementById('btnReturn');
+        btnReturn.style.display = 'inline-block';
+        const source = getSourceFromQuery();
+        btnReturn.onclick = () => {
+          window.location.href = '/' + source.toLowerCase();
+        }
+      } catch (err) {
+        document.getElementById('mediaWrapper').innerHTML = '';
+        document.getElementById('mediaTitle').textContent = 'Erreur lors de la récupération du résultat : ' + err.message;
+      }
+    }
+    const id = getIdFromPath();
+    if (id) fetchResult(id);
+    else document.getElementById('mediaTitle').textContent = "Identifiant manquant dans l'URL.";
+    document.getElementById('homeBtn').onclick = () => { window.location.href = '/'; };
+  </script>
+</body>
+</html>
