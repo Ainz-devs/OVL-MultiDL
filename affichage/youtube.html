@@ -197,6 +197,12 @@
         transform: rotate(360deg);
       }
     }
+    #errorMessage {
+      color: #ff6b6b;
+      margin-bottom: 15px;
+      font-weight: 600;
+      min-height: 24px;
+    }
   </style>
 </head>
 <body>
@@ -219,6 +225,7 @@
 
   <div class="container" id="inputContainer">
     <h2>YouTube</h2>
+    <div id="errorMessage"></div>
     <input type="text" id="youtubeUrl" placeholder="Collez l'URL YouTube ici..." />
     <select id="formatSelect">
       <option disabled selected>Choisissez un format</option>
@@ -256,25 +263,35 @@
     const launchBtn = document.getElementById('launchBtn');
     const urlInput = document.getElementById('youtubeUrl');
     const formatSelect = document.getElementById('formatSelect');
+    const errorMessage = document.getElementById('errorMessage');
 
     function isValidYouTubeUrl(url) {
-      return /^https:\/\/youtu\.be\/[\w-]{11}$/.test(url);
+      return url.startsWith('https://youtu.be/');
+    }
+
+    function clearError() {
+      errorMessage.textContent = '';
+    }
+
+    function showError(msg) {
+      errorMessage.textContent = msg;
     }
 
     launchBtn.addEventListener('click', async () => {
-      const url = urlInput.value.trim();
+      clearError();
+      const url = urlInput.value.trim().split('&')[0];
       const format = formatSelect.value;
 
       if (!url) {
-        alert('Veuillez entrer une URL YouTube.');
+        showError('Veuillez entrer une URL YouTube.');
         return;
       }
       if (!isValidYouTubeUrl(url)) {
-        alert('Veuillez entrer une URL YouTube valide commençant par https://youtu.be/');
+        showError('Veuillez entrer une URL YouTube valide (exemple : https://youtu.be/xxxxxxx ou https://www.youtube.com/watch?v=xxxxxxx).');
         return;
       }
       if (!format || formatSelect.selectedIndex === 0) {
-        alert('Veuillez choisir un format.');
+        showError('Veuillez choisir un format.');
         return;
       }
 
@@ -289,7 +306,7 @@
 
         window.location.href = `/telechargement/${data.id}`;
       } catch (err) {
-        alert('Erreur lors du téléchargement : ' + err.message);
+        showError('Erreur lors du téléchargement : ' + err.message);
       } finally {
         launchBtn.disabled = false;
         launchBtn.textContent = 'Télécharger';
