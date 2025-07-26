@@ -25,7 +25,7 @@ async function ovldl(videoUrl, type, userAgent) {
         url: videoUrl,
         format: type,
         lang: 'fr',
-        subscribed: 'true',
+        subscribed: 'false',
       }).toString();
 
       const postResp = await axios.post('https://s69.notube.lol/recover_weight.php', postData, { headers });
@@ -42,7 +42,7 @@ async function ovldl(videoUrl, type, userAgent) {
         name_mp4,
         lang: 'fr',
         token,
-        subscribed: 'true',
+        subscribed: 'false',
         playlist: 'false',
         adblock: 'false'
       }).toString();
