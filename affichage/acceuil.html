@@ -6,17 +6,11 @@
   <title>OVL-MultiDL - Téléchargez depuis toutes vos plateformes préférées</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-    }
     body {
       background: linear-gradient(to bottom right, rgba(10,10,10,0.95), rgba(20,20,20,0.95));
       color: #fff;
       min-height: 100vh;
-      display: none;
+      display: flex;
       flex-direction: column;
       position: relative;
       overflow: hidden;
@@ -24,17 +18,22 @@
     .preloader {
       background: #000;
       position: fixed;
-      width: 100%;
-      height: 100%;
-      z-index: 9999;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 99999;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-direction: column;
       color: #1e90ff;
       font-size: 1.5rem;
-      animation: fadeOut 1s ease-out forwards;
-      animation-delay: 10s;
+      transition: opacity 0.5s;
+    }
+    .preloader.hide {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s;
     }
     .loader {
       border: 5px solid #222;
@@ -46,15 +45,8 @@
       margin-bottom: 20px;
     }
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    @keyframes fadeOut {
-      to {
-        opacity: 0;
-        visibility: hidden;
-        display: none;
-      }
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
     }
     header {
       padding: 20px 40px;
@@ -171,12 +163,8 @@
       100% {transform: translateY(-100vh) scale(1.2); opacity: 0;}
     }
     @media (max-width: 600px) {
-      h1 {
-        font-size: 2rem;
-      }
-      p {
-        font-size: 1rem;
-      }
+      h1 { font-size: 2rem; }
+      p { font-size: 1rem; }
     }
     .whatsapp-channel {
       background: rgba(30, 144, 255, 0.15);
@@ -234,9 +222,8 @@
   </style>
 </head>
 <body>
-  <div class="preloader">
+  <div class="preloader" id="preloader">
     <div class="loader"></div>
-    OVL-MultiDL...
   </div>
   <div class="background-anim">
     <span style="left:10%; animation-delay: 0s;"></span>
@@ -289,10 +276,12 @@
     function navigate(page) {
       window.location.href = page;
     }
-    setTimeout(() => {
-      document.querySelector('.preloader').style.display = 'none';
-      document.body.style.display = 'flex';
-    }, 3000);
+    
+    window.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () {
+        document.getElementById('preloader').classList.add('hide');
+      }, 3000);
+    });
   </script>
 </body>
 </html>
