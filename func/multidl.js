@@ -87,7 +87,7 @@ function cleanCache() {
 
 setInterval(cleanCache, 60 * 1000);
 
-app.get('/ovldl', async (req, res) => {
+app.get('/', async (req, res) => {
   const { url, format, id, source } = req.query;
   const userAgent = req.headers['user-agent'];
 
