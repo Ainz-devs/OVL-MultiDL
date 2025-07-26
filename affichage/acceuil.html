@@ -13,7 +13,8 @@
       display: flex;
       flex-direction: column;
       position: relative;
-      overflow: hidden;
+      overflow-y: auto;
+      font-family: 'Inter', sans-serif;
     }
     .preloader {
       background: #000;
@@ -33,7 +34,6 @@
     .preloader.hide {
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.5s;
     }
     .loader {
       border: 5px solid #222;
@@ -101,7 +101,7 @@
       justify-content: center;
       align-items: center;
       text-align: center;
-      padding: 40px;
+      padding: 40px 20px;
       position: relative;
       z-index: 1;
     }
@@ -114,18 +114,20 @@
       max-width: 600px;
       line-height: 1.5;
       color: #aaa;
+      margin: 0 auto;
     }
     footer {
-      padding: 20px;
+      padding: 30px 20px 40px;
       text-align: center;
-      background: rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(5px);
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      color: #ccc;
     }
     .footer-icons {
       display: flex;
       justify-content: center;
       gap: 15px;
-      margin-top: 10px;
+      margin-bottom: 15px;
     }
     .footer-icons a {
       color: #ccc;
@@ -147,6 +149,7 @@
       width: 100%;
       height: 100%;
       z-index: 0;
+      pointer-events: none;
       overflow: hidden;
     }
     .background-anim span {
@@ -162,10 +165,6 @@
       50% {opacity: 1;}
       100% {transform: translateY(-100vh) scale(1.2); opacity: 0;}
     }
-    @media (max-width: 600px) {
-      h1 { font-size: 2rem; }
-      p { font-size: 1rem; }
-    }
     .whatsapp-channel {
       background: rgba(30, 144, 255, 0.15);
       border: 2px solid #1e90ff;
@@ -176,20 +175,18 @@
       text-align: center;
       box-shadow: 0 0 12px rgba(30,144,255,0.5);
       transition: box-shadow 0.3s ease;
-      cursor: pointer;
-      user-select: none;
     }
     .whatsapp-channel:hover {
       box-shadow: 0 0 20px rgba(30,144,255,0.8);
     }
     .whatsapp-channel a {
-      text-decoration: none;
-      color: #1e90ff;
-      font-weight: 700;
-      font-size: 1.3rem;
       display: inline-flex;
       align-items: center;
       gap: 10px;
+      color: #1e90ff;
+      font-weight: 700;
+      font-size: 1.3rem;
+      text-decoration: none;
       transition: color 0.3s ease;
     }
     .whatsapp-channel a:hover {
@@ -210,7 +207,9 @@
       color: #ccc;
       font-weight: 500;
     }
-    @media (max-width: 480px) {
+    @media (max-width: 600px) {
+      h1 { font-size: 2rem; }
+      p { font-size: 1rem; }
       .whatsapp-channel {
         max-width: 90%;
         padding: 15px 20px;
@@ -254,10 +253,10 @@
       </p>
     </div>
   </main>
-  <div class="whatsapp-channel" onclick="window.open('https://whatsapp.com/channel/0029VayTmvxHltYGCm0J7P0A', '_blank')">
+  <div class="whatsapp-channel">
     <div class="text">Abonnez vous à ma chaîne👇</div>
-    <a href="https://whatsapp.com/channel/0029VayTmvxHltYGCm0J7P0A" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Channel Link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M16 0C7.163 0 0 7.163 0 16a15.89 15.89 0 001.223 6.086L0 32l10.152-1.15A15.91 15.91 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0z" fill="#25D366"/><path d="M23.803 19.165c-.354-.177-2.097-1.035-2.421-1.153-.324-.118-.56-.177-.796.178-.237.355-.916 1.152-1.122 1.39-.206.237-.412.266-.766.089-.354-.177-1.494-.55-2.843-1.754-1.05-.936-1.758-2.089-1.964-2.444-.206-.355-.022-.547.154-.723.158-.158.354-.412.531-.619.177-.206.237-.355.355-.59.118-.237.059-.443-.03-.619-.089-.177-.796-1.92-1.09-2.626-.287-.689-.578-.59-.796-.599-.206-.01-.443-.012-.679-.012-.237 0-.619.089-.943.443s-1.239 1.21-1.239 2.955 1.267 3.426 1.444 3.663c.177.237 2.5 3.815 6.055 5.345.847.365 1.506.583 2.02.747.847.269 1.616.231 2.225.14.679-.101 2.097-.858 2.394-1.688.296-.83.296-1.54.207-1.688-.089-.148-.324-.237-.678-.414z"/></svg>
+    <a href="https://whatsapp.com/channel/0029VayTmvxHltYGCm0J7P0A" target="_blank" rel="noopener noreferrer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M16 0C7.163 0 0 7.163 0 16a15.89 15.89 0 001.223 6.086L0 32l10.152-1.15A15.91 15.91 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0z" fill="#25D366"/><path d="M23.803 19.165c-.354-.177-2.097-1.035-2.421-1.153-.324-.118-.56-.177-.796.178-.237.355-.916 1.152-1.122 1.39-.206.237-.412.266-.766.089-.354-.177-1.494-.55-2.843-1.754-1.05-.936-1.758-2.089-1.964-2.444-.206-.355-.022-.547.154-.723.158-.158.354-.412.531-.619.177-.206.237-.355.355-.59.118-.237.059-.443-.03-.619-.089-.177-.796-1.92-1.09-2.626-.287-.689-.578-.59-.796-.599-.206-.01-.443-.012-.679-.012-.237 0-.619.089-.943.443s-1.239 1.21-1.239 2.955 1.267 3.426 1.444 3.663c.177.237 2.5 3.815 6.055 5.345.847.365 1.506.583 2.02.747.847.269 1.616.231 2.225.14.679-.101 2.097-.858 2.394-1.688.296-.83.296-1.54.207-1.688-.089-.148-.324-.237-.678-.414z"/></svg>
       Join
     </a>
   </div>
@@ -266,7 +265,7 @@
       <a href="https://wa.me/22651463203" aria-label="WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M16 0C7.163 0 0 7.163 0 16a15.89 15.89 0 001.223 6.086L0 32l10.152-1.15A15.91 15.91 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0z" fill="#25D366"/><path d="M23.803 19.165c-.354-.177-2.097-1.035-2.421-1.153-.324-.118-.56-.177-.796.178-.237.355-.916 1.152-1.122 1.39-.206.237-.412.266-.766.089-.354-.177-1.494-.55-2.843-1.754-1.05-.936-1.758-2.089-1.964-2.444-.206-.355-.022-.547.154-.723.158-.158.354-.412.531-.619.177-.206.237-.355.355-.59.118-.237.059-.443-.03-.619-.089-.177-.796-1.92-1.09-2.626-.287-.689-.578-.59-.796-.599-.206-.01-.443-.012-.679-.012-.237 0-.619.089-.943.443s-1.239 1.21-1.239 2.955 1.267 3.426 1.444 3.663c.177.237 2.5 3.815 6.055 5.345.847.365 1.506.583 2.02.747.847.269 1.616.231 2.225.14.679-.101 2.097-.858 2.394-1.688.296-.83.296-1.54.207-1.688-.089-.148-.324-.237-.678-.414z"/></svg></a>
       <a href="https://t.me/ainz_45t" aria-label="Telegram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="#0088cc" d="M16 0C7.163 0 0 7.163 0 16c0 2.843.743 5.508 2.034 7.836L0 32l8.464-2.236A15.91 15.91 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm7.163 11.042l-2.692 12.72c-.2.9-.73 1.11-1.48.69l-4.08-3.006-1.965 1.89c-.217.217-.4.4-.82.4l.295-4.197 7.64-6.908c.333-.3-.073-.47-.515-.17l-9.45 5.97-4.072-1.27c-.89-.28-.9-.89.187-1.32l15.936-6.15c.733-.27 1.372.17 1.136 1.05z"/></svg></a>
     </div>
-    <div style="margin-top: 10px;">&copy; 2025 OVL-MultiDL. Tous droits réservés.</div>
+    <div>&copy; 2025 OVL-MultiDL. Tous droits réservés.</div>
   </footer>
   <script>
     function toggleMenu() {
@@ -276,11 +275,10 @@
     function navigate(page) {
       window.location.href = page;
     }
-    
     window.addEventListener('DOMContentLoaded', function () {
       setTimeout(function () {
         document.getElementById('preloader').classList.add('hide');
-      }, 3000);
+      }, 1000);
     });
   </script>
 </body>
