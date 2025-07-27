@@ -86,7 +86,7 @@ function cleanCache() {
 
 setInterval(cleanCache, 60 * 1000);
 
-app.use('/ovldl', async (req, res) => {
+app.get('/ovldl', async (req, res) => {
   const { url, format, id, source } = req.query;
   const baseUrl = `${req.protocol}://${req.get('host')}`;
 
@@ -130,7 +130,7 @@ app.use('/ovldl', async (req, res) => {
 
 app.use('/downloads', express.static(DOWNLOAD_DIR));
 
-app.use('/stream/:filename', (req, res) => {
+app.get('/stream/:filename', (req, res) => {
   const filePath = path.join(DOWNLOAD_DIR, req.params.filename);
   if (fs.existsSync(filePath)) {
     res.sendFile(filePath);
