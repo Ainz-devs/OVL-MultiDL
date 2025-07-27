@@ -99,8 +99,8 @@ app.get('/ovldl', async (req, res) => {
       status: true,
       creator: 'Ainz',
       name: data.name,
-      dl_link: `${baseUrl}/downloads/${data.savedName}`,
-      stream_link: `${baseUrl}/stream/${data.savedName}`,
+      dl_link: `${baseUrl}/api/downloads/${data.savedName}`,
+      stream_link: `${baseUrl}/api/stream/${data.savedName}`,
       source: data.source || null
     });
   }
