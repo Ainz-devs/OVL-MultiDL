@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 8000;
-const ovldl = require('./func/multidl.js');
+const func = require('./func/multidl.js');
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -18,7 +18,7 @@ app.get('/telechargement/:id', (req, res) => {
   res.sendFile(path.join(__dirname, 'affichage', 'telechargement.html'));
 });
 
-app.use('/ovldl', ovldl);
+app.use('/api', func);
 
 app.listen(PORT, () => {
   console.log(`Serveur en cours d'exécution sur http://localhost:${PORT}`);
