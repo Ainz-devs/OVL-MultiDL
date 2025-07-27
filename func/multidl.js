@@ -38,7 +38,6 @@ async function ovldl(videoUrl, type) {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       const userAgent = getRandomUserAgent();
-      console.log(userAgent);
       const headers = {
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
         'Referer': 'https://notube.lol/fr/',
