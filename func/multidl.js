@@ -1,135 +1,168 @@
 const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio');
+const fs = require('fs');
+const path = require('path');
 const app = express.Router();
 
 const cacheMap = new Map();
+const DOWNLOAD_DIR = path.join(__dirname, '..', 'downloads');
 
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+if (!fs.existsSync(DOWNLOAD_DIR)) {
+  fs.mkdirSync(DOWNLOAD_DIR);
 }
 
-async function ovldl(videoUrl, type, userAgent) {
-  const maxAttempts = 5;
-  const defaultUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36';
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      const headers = {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'Referer': 'https://notube.lol/fr/'
-      };
+async function downloadFile(url, filename) {
+  const filePath = path.join(DOWNLOAD_DIR, filename);
+  const writer = fs.createWriteStream(filePath);
+  autoDelete(filePath)
+  const response = await axios({ url, method: 'GET', responseType: 'stream' });
+  return new Promise((resolve, reject) => {
+    response.data.pipe(writer);
+    writer.on('finish', () => resolve(filePath));
+    writer.on('error', reject);
+  });
+}
 
-      const postData = new URLSearchParams({
-        url: videoUrl,
-        format: type,
-        lang: 'fr',
-        subscribed: 'false',
-      }).toString();
+async function ovldl(videoUrl, type) {
+  const maxAttempts = 5;
 
-      const postResp = await axios.post('https://s69.notube.lol/recover_weight.php', postData, { headers });
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const headers = {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Referer': 'https://notube.lol/fr/'
+      };
 
-      const token = postResp.data?.token;
-      const name_mp4 = postResp.data?.name_mp4 || 'video.mp4';
-      const titre = decodeURIComponent(postResp.data?.titre_mp4 || 'Fichier inconnu');
+      const postData = new URLSearchParams({
+        url: videoUrl,
+        format: type,
+        lang: 'fr',
+        subscribed: 'false'
+      }).toString();
 
-      if (!token) throw new Error('Token introuvable');
+      const postResp = await axios.post('https://s69.notube.lol/recover_weight.php', postData, { headers });
 
-      const formValidation = new URLSearchParams({
-        url: videoUrl,
-        format: type,
-        name_mp4,
-        lang: 'fr',
-        token,
-        subscribed: 'false',
-        playlist: 'false',
-        adblock: 'false'
-      }).toString();
+      const token = postResp.data?.token;
+      const name_mp4 = postResp.data?.name_mp4 || 'video.mp4';
+      const titre = decodeURIComponent(postResp.data?.titre_mp4 || 'Fichier inconnu');
 
-      const validationResp = await axios.post(
-        'https://s66.notube.lol/recover_file.php?lang=fr',
-        formValidation,
-        { headers }
-      );
+      if (!token) throw new Error('Token introuvable');
 
-      console.log(validationResp.data);
-      if (validationResp.data?.retour !== 'OK') throw new Error('Validation échouée');
+      const formValidation = new URLSearchParams({
+        url: videoUrl,
+        format: type,
+        name_mp4,
+        lang: 'fr',
+        token,
+        subscribed: 'false',
+        playlist: 'false',
+        adblock: 'false'
+      }).toString();
 
-      const dlPage = await axios.get(`https://notube.lol/fr/download?token=${token}`, {
-        headers: {
-          'Content-Type': 'text/html'
-        }
-      });
+      const validationResp = await axios.post('https://s66.notube.lol/recover_file.php?lang=fr', formValidation, { headers });
 
-      const $ = cheerio.load(dlPage.data);
-      const downloadLink = $('#downloadButton').attr('href');
+      if (validationResp.data?.retour !== 'OK') throw new Error('Validation échouée');
 
-      if (!downloadLink) throw new Error('Lien de téléchargement introuvable');
+      const dlPage = await axios.get(`https://notube.lol/fr/download?token=${token}`, {
+        headers: { 'Content-Type': 'text/html' }
+      });
 
-      return { downloadLink, titre };
+      const $ = cheerio.load(dlPage.data);
+      const downloadLink = $('#downloadButton').attr('href');
 
-    } catch (e) {
-      console.error(`Tentative ${attempt} échouée :`, e.message);
-      if (attempt === maxAttempts) return null;
-    }
-  }
+      if (!downloadLink) throw new Error('Lien de téléchargement introuvable');
+
+      return { downloadLink, titre, filename: name_mp4 };
+
+    } catch (e) {
+      console.error(`Tentative ${attempt} échouée :`, e.message);
+      if (attempt === maxAttempts) return null;
+    }
+  }
+}
+
+function autoDelete(filePath, delayMs = 5 * 60 * 1000) {
+  setTimeout(() => {
+    fs.unlink(filePath, (err) => {
+      if (err) console.error('Erreur de suppression :', err);
+      else console.log('Fichier supprimé :', filePath);
+    });
+  }, delayMs);
 }
 
 function cleanCache() {
-  const now = Date.now();
-  for (const [key, value] of cacheMap.entries()) {
-    if (now - value.timestamp > 5 * 60 * 1000) {
-      cacheMap.delete(key);
-      console.log(`Cache supprimé pour l'id ${key} (plus de 5 minutes)`);
-    }
-  }
+  const now = Date.now();
+  for (const [key, value] of cacheMap.entries()) {
+    if (now - value.timestamp > 5 * 60 * 1000) {
+      cacheMap.delete(key);
+      console.log(`Cache supprimé pour l'id ${key} (plus de 5 minutes)`);
+    }
+  }
 }
 
 setInterval(cleanCache, 60 * 1000);
 
 app.get('/', async (req, res) => {
-  const { url, format, id, source } = req.query;
-  const userAgent = req.headers['user-agent'];
+  const { url, format, id, source } = req.query;
 
-  if (id) {
-    if (!cacheMap.has(id)) {
-      return res.status(404).json({ status: false, error: 'ID non trouvé.' });
-    }
-    const data = cacheMap.get(id);
-    console.log(`Requête réussie pour ID: ${id} (source: ${data.source || 'inconnu'})`);
-    return res.json({
-      status: true,
-      creator: 'Ainz',
-      name: data.name,
-      ovl_dl_link: data.link,
-      source: data.source || null,
-    });
-  }
+  if (id) {
+    if (!cacheMap.has(id)) {
+      return res.status(404).json({ status: false, error: 'ID non trouvé.' });
+    }
+    const data = cacheMap.get(id);
+    console.log(`Requête réussie pour ID: ${id} (source: ${data.source || 'inconnu'})`);
+    return res.json({
+      status: true,
+      creator: 'Ainz',
+      name: data.name,
+      dl_link: `/downloads/${data.savedName}`,
+      stream_link: `/stream/${data.savedName}`,
+      source: data.source || null
+    });
+  }
 
-  if (!url || !format || !source) {
-    return res.status(400).json({ status: false, error: 'Paramètres manquants.' });
-  }
+  if (!url || !format || !source) {
+    return res.status(400).json({ status: false, error: 'Paramètres manquants.' });
+  }
 
-  const result = await ovldl(url, format, userAgent);
+  const result = await ovldl(url, format);
+  if (!result) {
+    return res.status(500).json({ status: false, error: 'Impossible de récupérer le lien de téléchargement.' });
+  }
 
-  if (!result) {
-    return res.status(500).json({ status: false, error: 'Impossible de récupérer le lien de téléchargement.' });
-  }
+  const uniqueName = generateId() + path.extname(result.filename || '.mp4');
+  await downloadFile(result.downloadLink, uniqueName);
 
-  const idGen = generateId();
-  cacheMap.set(idGen, {
-    name: result.titre,
-    link: result.downloadLink,
-    source: source.toLowerCase(),
-    timestamp: Date.now()
-  });
+  const idGen = generateId();
+  cacheMap.set(idGen, {
+    name: result.titre,
+    savedName: uniqueName,
+    source: source.toLowerCase(),
+    timestamp: Date.now()
+  });
 
-  console.log(`Nouvelle requête générée ID: ${idGen} (source: ${source.toLowerCase()})`);
+  console.log(`Nouvelle requête générée ID: ${idGen} (source: ${source.toLowerCase()})`);
 
-  res.json({
-    status: true,
-    id: idGen
-  });
+  res.json({
+    status: true,
+    id: idGen
+  });
+});
+
+app.use('/downloads', express.static(DOWNLOAD_DIR));
+
+app.get('/stream/:filename', (req, res) => {
+  const filePath = path.join(DOWNLOAD_DIR, req.params.filename);
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).send('Fichier non trouvé');
+  }
 });
 
 module.exports = app;
