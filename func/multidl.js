@@ -99,6 +99,7 @@ app.get('/ovldl', async (req, res) => {
       status: true,
       creator: 'Ainz',
       name: data.name,
+      filename: data.filename,
       dl_link: `${baseUrl}/api/downloads/${data.savedName}`,
       stream_link: `${baseUrl}/api/stream/${data.savedName}`,
       source: data.source || null
@@ -120,6 +121,7 @@ app.get('/ovldl', async (req, res) => {
   const idGen = generateId();
   cacheMap.set(idGen, {
     name: result.titre,
+    filename: result.filename,
     savedName: uniqueName,
     source: source.toLowerCase(),
     timestamp: Date.now()
