@@ -17,7 +17,6 @@ async function ovldl(videoUrl, type, userAgent) {
     try {
       const headers = {
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'User-Agent': userAgent || defaultUserAgent,
         'Referer': 'https://notube.lol/fr/'
       };
 
@@ -58,7 +57,6 @@ async function ovldl(videoUrl, type, userAgent) {
 
       const dlPage = await axios.get(`https://notube.lol/fr/download?token=${token}`, {
         headers: {
-          'User-Agent': userAgent || defaultUserAgent,
           'Content-Type': 'text/html'
         }
       });
