@@ -128,7 +128,14 @@ app.get('/ovldl', async (req, res) => {
   res.json({ status: true, id: idGen });
 });
 
-app.use('/downloads', express.static(DOWNLOAD_DIR));
+app.get('/downloads/:filename', (req, res) => {
+  const filePath = path.join(DOWNLOAD_DIR, req.params.filename);
+  if (fs.existsSync(filePath)) {
+    res.download(filePath, req.params.filename);
+  } else {
+    res.status(404).send('Fichier non trouvé');
+  }
+});
 
 app.get('/stream/:filename', (req, res) => {
   const filePath = path.join(DOWNLOAD_DIR, req.params.filename);
