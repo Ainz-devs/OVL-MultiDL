@@ -9,7 +9,7 @@ const cacheMap = new Map();
 const DOWNLOAD_DIR = path.join(__dirname, '..', 'downloads');
 
 if (!fs.existsSync(DOWNLOAD_DIR)) {
-  fs.mkdirSync(DOWNLOAD_DIR);
+  fs.mkdirSync(DOWNLOAD_DIR, { recursive: true });
 }
 
 function generateId() {
