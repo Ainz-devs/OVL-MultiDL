@@ -86,6 +86,9 @@
     }
     .media-wrapper {
       margin-bottom: 25px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     .media-wrapper audio,
     .media-wrapper video {
@@ -94,6 +97,7 @@
       border-radius: 16px;
       background: #111;
       box-shadow: 0 0 20px rgba(30, 144, 255, 0.7);
+      outline: none;
     }
     .media-title {
       font-weight: 700;
@@ -163,10 +167,10 @@
     <h2></h2>
     <div class="media-wrapper" id="mediaWrapper"></div>
     <div class="media-title" id="mediaTitle">Chargement...</div>
-    <a href="#" download class="btn-download" id="downloadBtn" style="display:none;">
+    <a href="#" class="btn-download" id="downloadBtn">
       <i class="fas fa-download"></i> Télécharger maintenant
     </a>
-    <button class="btn-return" id="btnReturn" style="display:none;">
+    <button class="btn-return" id="btnReturn">
       <i class="fas fa-undo-alt"></i> Retour
     </button>
   </main>
@@ -187,15 +191,15 @@
         const res = await fetch(`/ovldl?id=${encodeURIComponent(id)}`);
         const data = await res.json();
         if (!data.status) throw new Error(data.error || 'Erreur serveur');
-        const { name, ovl_dl_link } = data;
+        const { name, ovl_dl_link, source } = data;
         const ext = ovl_dl_link.split('.').pop().toLowerCase();
         const mediaWrapper = document.getElementById('mediaWrapper');
         let mediaHTML = '';
 
         if (['mp3', 'm4a', 'wav'].includes(ext)) {
-          mediaHTML = `<audio controls src="${ovl_dl_link}"></audio>`;
+          mediaHTML = `<audio controls><source src="${ovl_dl_link}" type="audio/${ext}"></audio>`;
         } else if (['mp4', '3gp', 'flv', 'webm'].includes(ext)) {
-          mediaHTML = `<video controls src="${ovl_dl_link}"></video>`;
+          mediaHTML = `<video controls><source src="${ovl_dl_link}" type="video/${ext}"></video>`;
         } else {
           mediaHTML = `<video controls src="${ovl_dl_link}"></video>`;
         }
@@ -204,23 +208,21 @@
         document.getElementById('mediaTitle').textContent = name;
         const downloadBtn = document.getElementById('downloadBtn');
         downloadBtn.href = ovl_dl_link;
-        downloadBtn.download = name;
-        downloadBtn.style.display = 'inline-flex';
+        downloadBtn.setAttribute("download", name);
         const btnReturn = document.getElementById('btnReturn');
         btnReturn.style.display = 'inline-block';
-        const source = getSourceFromQuery();
         btnReturn.onclick = () => {
           window.location.href = '/' + source.toLowerCase();
         }
-      } catch (err) {
-        document.getElementById('mediaWrapper').innerHTML = '';
-        document.getElementById('mediaTitle').textContent = 'Erreur lors de la récupération du résultat : ' + err.message;
+              } catch (err) {
+          document.getElementById('mediaWrapper').innerHTML = '';
+          document.getElementById('mediaTitle').textContent = 'Erreur lors de la récupération du résultat : ' + err.message;
+        }
       }
-    }
 
-    const id = getIdFromPath();
-    if (id) fetchResult(id);
-    else document.getElementById('mediaTitle').textContent = "Identifiant manquant dans l'URL.";
-  </script>
-</body>
+      const id = getIdFromPath();
+      if (id) fetchResult(id);
+      else document.getElementById('mediaTitle').textContent = "Identifiant manquant dans l'URL.";
+    </script>
+  </body>
 </html>
