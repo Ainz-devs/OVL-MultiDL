@@ -299,12 +299,12 @@
       launchBtn.innerHTML = '<div class="loader"></div> Chargement...';
 
       try {
-        const res = await fetch(`/ovldl?url=${encodeURIComponent(url)}&format=${encodeURIComponent(format)}&source=youtube`);
+        const res = await fetch(`/api/ovldl?url=${encodeURIComponent(url)}&format=${encodeURIComponent(format)}&source=youtube`);
         const data = await res.json();
 
         if (!data.status || !data.id) throw new Error(data.error || 'Erreur serveur');
 
-        window.location.href = `/telechargement/${data.id}`;
+        window.location.href = `/api//telechargement/${data.id}`;
       } catch (err) {
         showError('Erreur lors du téléchargement : ' + err.message);
       } finally {
