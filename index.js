@@ -14,7 +14,7 @@ app.get('/youtube', (req, res) => {
   res.sendFile(path.join(__dirname, 'affichage', 'youtube.html'));
 });
 
-app.get('/telechargement/:id', (req, res) => {
+app.get('/api/telechargement/:id', (req, res) => {
   res.sendFile(path.join(__dirname, 'affichage', 'telechargement.html'));
 });
 
