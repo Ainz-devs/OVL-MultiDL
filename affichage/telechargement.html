@@ -85,31 +85,34 @@
       margin-bottom: 25px;
     }
     .media-wrapper {
+      width: 100%;
       margin-bottom: 25px;
       display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column;
     }
-    .media-wrapper video {
+    .media-wrapper video,
+    .media-wrapper .audio-container {
       width: 100%;
-      max-height: 360px;
+      max-width: 100%;
       border-radius: 16px;
       background: #111;
       box-shadow: 0 0 20px rgba(30, 144, 255, 0.7);
-      outline: none;
+      overflow: hidden;
     }
     .audio-container {
-      width: 100%;
-      max-width: 400px;
-      margin: 0 auto;
-      background: #111;
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: 0 0 20px rgba(30, 144, 255, 0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      gap: 10px;
     }
     .audio-container audio {
       width: 100%;
+      height: 40px;
+      background-color: #000;
+      border-radius: 8px;
       outline: none;
     }
     .media-title {
@@ -166,7 +169,6 @@
     <span style="left:70%; animation-delay: 1s;"></span>
     <span style="left:90%; animation-delay: 5s;"></span>
   </div>
-
   <header>
     <div class="logo-title">OVL-MultiDL</div>
     <div class="home-icon" onclick="window.location.href='/'">
@@ -175,7 +177,6 @@
       </svg>
     </div>
   </header>
-
   <main class="container" id="resultContainer">
     <h2>Résultat</h2>
     <div class="media-wrapper" id="mediaWrapper"></div>
@@ -187,23 +188,20 @@
       <i class="fas fa-undo-alt"></i> Retour
     </button>
   </main>
-
   <script>
     function getIdFromPath() {
-      const parts = window.location.pathname.split('/');
-      return parts.length ? parts[parts.length - 1] : null;
+      const parts = window.location.pathname.split('/')
+      return parts.length ? parts[parts.length - 1] : null
     }
-
     async function fetchResult(id) {
       try {
-        const res = await fetch(`/api/ovldl?id=${encodeURIComponent(id)}`);
-        const data = await res.json();
-        if (!data.status) throw new Error(data.error || 'Erreur serveur');
-        const { name, dl_link, stream_link, source } = data;
-        const ext = stream_link.split('.').pop().toLowerCase();
-        const mediaWrapper = document.getElementById('mediaWrapper');
-        let mediaHTML = '';
-
+        const res = await fetch(`/api/ovldl?id=${encodeURIComponent(id)}`)
+        const data = await res.json()
+        if (!data.status) throw new Error(data.error || 'Erreur serveur')
+        const { name, dl_link, stream_link, source } = data
+        const ext = stream_link.split('.').pop().toLowerCase()
+        const mediaWrapper = document.getElementById('mediaWrapper')
+        let mediaHTML = ''
         if (['mp3', 'm4a', 'wav'].includes(ext)) {
           mediaHTML = `
             <div class="audio-container">
@@ -211,36 +209,34 @@
                 <source src="${stream_link}" type="audio/${ext}">
                 Votre navigateur ne supporte pas l'audio HTML5.
               </audio>
-            </div>`;
+            </div>`
         } else if (['mp4', '3gp', 'flv', 'webm'].includes(ext)) {
           mediaHTML = `
             <video controls>
               <source src="${stream_link}" type="video/${ext}">
               Votre navigateur ne supporte pas la vidéo HTML5.
-            </video>`;
+            </video>`
         } else {
-          mediaHTML = `<p>Format non pris en charge</p>`;
+          mediaHTML = `<p>Format non pris en charge</p>`
         }
-
-        mediaWrapper.innerHTML = mediaHTML;
-        document.getElementById('mediaTitle').textContent = name;
-        const downloadBtn = document.getElementById('downloadBtn');
-        downloadBtn.href = dl_link;
-        downloadBtn.setAttribute("download", name);
-        const btnReturn = document.getElementById('btnReturn');
-        btnReturn.style.display = 'inline-block';
+        mediaWrapper.innerHTML = mediaHTML
+        document.getElementById('mediaTitle').textContent = name
+        const downloadBtn = document.getElementById('downloadBtn')
+        downloadBtn.href = dl_link
+        downloadBtn.setAttribute("download", name)
+        const btnReturn = document.getElementById('btnReturn')
+        btnReturn.style.display = 'inline-block'
         btnReturn.onclick = () => {
-          window.location.href = '/' + source.toLowerCase();
+          window.location.href = '/' + source.toLowerCase()
         }
       } catch (err) {
-        document.getElementById('mediaWrapper').innerHTML = '';
-        document.getElementById('mediaTitle').textContent = 'Erreur : ' + err.message;
+        document.getElementById('mediaWrapper').innerHTML = ''
+        document.getElementById('mediaTitle').textContent = 'Erreur : ' + err.message
       }
     }
-
-    const id = getIdFromPath();
-    if (id) fetchResult(id);
-    else document.getElementById('mediaTitle').textContent = "Identifiant manquant dans l'URL.";
+    const id = getIdFromPath()
+    if (id) fetchResult(id)
+    else document.getElementById('mediaTitle').textContent = "Identifiant manquant dans l'URL."
   </script>
 </body>
 </html>
